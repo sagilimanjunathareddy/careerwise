@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Resume | CareerWise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 min-h-screen py-10 px-4 flex flex-col items-center">
+
+  <!-- Container -->
+  <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-3xl">
+    <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">🚀 Upload Your Resume</h1>
+    
+    <!-- Upload Form -->
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
+      <input type="file" name="resume" accept=".pdf" required 
+             class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"/>
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg text-lg hover:bg-indigo-700 transition">Upload Resume</button>
+    </form>
+
+    {% if uploaded %}
+    <!-- Extracted Details -->
+    <div class="mt-10 space-y-6 text-sm md:text-base">
+
+      <!-- Basic Info -->
+      <div class="bg-gray-50 p-5 rounded-lg shadow border-l-4 border-indigo-500">
+        <h2 class="text-xl font-semibold text-indigo-600 mb-4">📄 Resume Summary</h2>
+        <p><strong>Email:</strong> {{ data.email|default:"Not found" }}</p>
+        <p><strong>Phone:</strong> {{ data.phone|default:"Not found" }}</p>
+        <p><strong>LinkedIn:</strong>
+          {% if data.linkedin %}
+            <a href="https://{{ data.linkedin }}" class="text-blue-600 underline" target="_blank">{{ data.linkedin }}</a>
+          {% else %} Not found {% endif %}
+        </p>
+        <p><strong>GitHub:</strong>
+          {% if data.github %}
+            <a href="https://{{ data.github }}" class="text-blue-600 underline" target="_blank">{{ data.github }}</a>
+          {% else %} Not found {% endif %}
+        </p>
+        <p><strong>Skills:</strong> {{ data.skills|join:", " }}</p>
+        <p><strong>Education:</strong> {{ data.education|join:", " }}</p>
+        <p><strong>Experience:</strong> {{ data.experience|join:", " }}</p>
+      </div>
+
+      <!-- Resume Score -->
+      <div>
+        <h2 class="font-semibold text-lg mb-1">📊 Resume Score</h2>
+        <div class="w-full h-5 bg-gray-300 rounded">
+          <div class="h-5 text-sm text-center text-white font-bold rounded transition-all duration-300 ease-in-out
+            {% if data.score < 40 %} bg-red-500
+            {% elif data.score < 70 %} bg-yellow-400 text-black
+            {% else %} bg-green-500 {% endif %}"
+            style="width: {{ data.score }}%">
+            {{ data.score }}%
+          </div>
+        </div>
+      </div>
+
+      <!-- Job Roles -->
+      {% if data.job_roles %}
+      <div>
+        <h2 class="font-semibold text-lg mb-2">💼 Job Role Recommendations</h2>
+        <ul class="list-disc pl-6 space-y-1 text-gray-800">
+          {% for role in data.job_roles %}
+            <li>{{ role }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Career Guidance -->
+      {% if data.guidance %}
+      <div class="bg-indigo-50 p-4 rounded-md border border-indigo-200 shadow">
+        <h2 class="font-semibold text-lg mb-2">🧭 Career Guidance</h2>
+        <p>{{ data.guidance }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Real-Time Job Listings -->
+      {% if data.realtime_jobs %}
+      <div>
+        <h2 class="font-semibold text-lg mb-2">🌐 Real-Time Jobs</h2>
+        {% for job in data.realtime_jobs %}
+          <div class="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition mb-4">
+            <h3 class="text-lg font-bold text-indigo-700">{{ job.title }}</h3>
+            <p><strong>Company:</strong> {{ job.company }}</p>
+            <p><strong>Location:</strong> {{ job.location }}</p>
+            <p class="text-gray-700">{{ job.description|truncatechars:200 }}</p>
+            <a href="{{ job.apply_link }}" target="_blank">
+              <button class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Apply Now</button>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-center text-gray-600">No real-time jobs found currently.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Career Assistant Chat -->
+  <div class="max-w-3xl w-full bg-white rounded-xl shadow-xl p-6 mt-10">
+    <h2 class="text-xl font-bold mb-4 text-indigo-700">🤖 Career Assistant Chat</h2>
+    <div id="chat-box" class="h-64 overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50 text-sm mb-4 space-y-2">
+      <!-- Chat messages appear here -->
+    </div>
+    <form id="chat-form" class="flex items-center space-x-2">
+      <input type="text" id="user-input" class="border border-gray-300 rounded px-4 py-2 w-full" placeholder="Ask about careers, jobs, skills..." />
+      <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Send</button>
+    </form>
+  </div>
+
+  <!-- Chat Script -->
+  <script>
+    const chatForm = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userMessage = userInput.value.trim();
+      if (!userMessage) return;
+
+      chatBox.innerHTML += `<div class="text-right"><p class="bg-indigo-100 inline-block px-3 py-2 rounded mb-1">${userMessage}</p></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      userInput.value = "";
+
+      chatBox.innerHTML += `<div id="loading" class="text-left"><p class="text-gray-500 italic">CareerWise is typing...</p></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch('/chat/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: JSON.stringify({ question: userMessage })
+        });
+
+        const data = await res.json();
+        document.getElementById('loading').remove();
+        chatBox.innerHTML += `<div class="text-left"><p class="bg-gray-100 inline-block px-3 py-2 rounded">${data.answer}</p></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (err) {
+        document.getElementById('loading').remove();
+        chatBox.innerHTML += `<div class="text-left"><p class="text-red-500">❌ Something went wrong. Try again.</p></div>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CareerWise Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daisyui@latest"></script>
+</head>
+<body class="bg-gradient-to-r from-indigo-400 to-purple-600 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-10 rounded-xl shadow-lg text-center space-y-6">
+    <h1 class="text-4xl font-bold text-indigo-700">Welcome to CareerWise</h1>
+    <p class="text-gray-600">Your AI-powered career assistant.</p>
+    <div class="flex justify-center space-x-4">
+      <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+      <a href="{% url 'signup' %}" class="btn btn-secondary">Sign Up</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+django
+pyresparser
+pdfminer.six
+python-docx
+nltk
