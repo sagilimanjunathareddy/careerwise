@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 services:
   - type: web
     name: careerwise
@@ -12,3 +13,27 @@ services:
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: CareerWise.settings
+=======
+services:
+  - type: web
+    name: careerwise-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn CareerWise.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: CareerWise.settings
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "careerwise.onrender.com"  # Replace with your actual domain after deploying
+>>>>>>> 4cd3b9d5fe193fb9d1ef3fad7222722549807180
